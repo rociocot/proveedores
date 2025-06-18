@@ -1,59 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const Proveedor = require('../models/Proveedor');
 
-// Obtener todos los proveedores GET
-router.get('/', (req, res) => {
-  db.query('SELECT * FROM proveedores', (err, results) => {
-    if (err) {
-      res.status(500).json({ error: err });
-    } else {
-      res.json(results);
-    }
-  });
+// GET
+router.get('/', async (req, res) => {
+  const proveedores = await Proveedor.findAll();
+  res.json(proveedores);
 });
 
-// Alta: Agregar un nuevo proveedor POST
-router.post('/', (req, res) => {
-  const { nombre, apellido, localidad, telefono, mail } = req.body;
-  db.query('INSERT INTO proveedores (nombre, apellido, localidad, telefono, mail) VALUES (?, ?, ?, ?, ?)', 
-  [nombre, apellido, localidad, telefono, mail], 
-  (err, result) => {
-    if (err) {
-      res.status(500).json({ error: err });
-    } else {
-      res.json({ id: result.insertId });
-    }
-  });
+// POST
+router.post('/', async (req, res) => {
+  const proveedor = await Proveedor.create(req.body);
+  res.json(proveedor);
 });
 
-// Baja: Eliminar proveedor por ID DELETE 
-router.delete('/:id', (req, res) => {
-  const id = req.params.id;
-  db.query('DELETE FROM proveedores WHERE ID_proveedor = ?', [id], (err) => {
-    if (err) {
-      res.status(500).json({ error: err });
-    } else {
-      res.json({ message: 'Proveedor eliminado' });
-    }
-  });
+// PUT
+router.put('/:id', async (req, res) => {
+  await Proveedor.update(req.body, { where: { ID_proveedor: req.params.id } });
+  res.json({ message: 'Actualizado' });
 });
 
-// Modificación: Actualizar proveedor por ID PUT
-router.put('/:id', (req, res) => {
-  const id = req.params.id;
-  const { nombre, apellido, localidad, telefono, mail } = req.body;
-  db.query(
-    'UPDATE proveedores SET nombre = ?, apellido = ?, localidad = ?, telefono = ?, mail = ? WHERE ID_proveedor = ?',
-    [nombre, apellido, localidad, telefono, mail, id],
-    (err) => {
-      if (err) {
-        res.status(500).json({ error: err });
-      } else {
-        res.json({ message: 'Proveedor actualizado' });
-      }
-    }
-  );
+// DELETE
+router.delete('/:id', async (req, res) => {
+  await Proveedor.destroy({ where: { ID_proveedor: req.params.id } });
+  res.json({ message: 'Eliminado' });
 });
 
 module.exports = router;

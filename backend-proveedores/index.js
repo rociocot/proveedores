@@ -1,21 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const sequelize = require('./config/database');
 const proveedoresRoutes = require('./routes/proveedores');
 
 const app = express();
-
-// Permitir peticiones desde cualquier origen (por ejemplo, React)
 app.use(cors());
+app.use(express.json());
 
-// Interpretar cuerpos JSON en las peticiones
-app.use(bodyParser.json());
-app.use(express.json());    //No funcionó en Postman sin esta parte, permite envio de datos en formato json
-
-// Usar las rutas definidas en routes/proveedores.js
 app.use('/api/proveedores', proveedoresRoutes);
 
-// Iniciar el servidor en el puerto 3000
-app.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
+sequelize.authenticate()
+  .then(() => console.log('Conexión establecida con MySQL'))
+  .catch(err => console.error('Error de conexión', err));
+
+const PORT = 4000;
+app.listen(PORT, () => {
+  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
